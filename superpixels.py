@@ -32,16 +32,32 @@ def main():
 	ap.add_argument("-i2", "--image2", required = False)
 	ap.add_argument("-s", "--size", required = False)
 	ap.add_argument("-d", "--data", required = True)
+	ap.add_argument("-p", "--polygon", required = False)
 	args = vars(ap.parse_args())
 	image = img_as_float(io.imread(args["image"]))
 	file = open(args["data"], "r")
 	data = file.read().split()
+
+	qr_coords = (int(data[0]), int(data[1]))
 	#run_open_cv(image)
 	if "size" in args and args["size"]:
 		size = int(args["size"])
 	else:
 		size = 100
-	if "image2" in args and args["image2"]:
+	if "polygon" in args: 
+		#Run match segments to polygon
+		num_levels = int(data[2])
+		test_set = []
+		for i in range(3, num_levels+3):
+			test_set.append(int(data[i]))
+		to_match = []
+		index = 3 + num_levels
+		while index < len(data):
+			to_match.append((int(data[index]), int(data[index+1])))
+			index += 2
+		leveler = Leveler(image, qr_coords)
+		leveler.find_level_and_segments(to_match, test_set)
+	elif "image2" in args and args["image2"]:
 		image2 = img_as_float(io.imread(args["image2"]))
 		#Run matching between image and image2
 
@@ -49,7 +65,7 @@ def main():
 		#print(superpixel_level)
 
 		#data is qrx qry qr2x qr2y dx dy ...
-		qr_coords = (int(data[0]), int(data[1]))
+		
 		qr_coords_2 = (int(data[2]), int(data[3]))
 		index = 4
 		to_match = []
@@ -64,13 +80,12 @@ def main():
 	else:
 		#Just run segmentation on image
 		#data is qrx qry
-		qr_coords = (int(data[0]), int(data[1]))
 		segmenter = Segmenter(image)
 		segmenter.run(size, qr_coords)
 		segmenter.generate_superpixel_image()
 		plt.show()
 
-class Segmenter:
+class Segmenter: #run superpixel segmentation on an image
 	def __init__(self, image):
 		self.image = image
 		self.segments = None
@@ -126,7 +141,7 @@ class Segmenter:
 		pprint(position_map)
 		return position_map
 
-class Matcher:
+class Matcher: #match segments between images
 
 	def __init__(self, image1, image2, qr_coords, qr_coords_2):
 		self.seg1 = Segmenter(image1)
@@ -163,6 +178,25 @@ class Matcher:
 		self.seg2.generate_superpixel_image()
 		plt.show()
 
+class Leveler: #find superpixel level which matches given polygon well
 
+	def __init__(self, image, qr_coords):
+		self.image = image
+		self.qr_coords = qr_coords
+
+	def find_level_and_segments(self, polygon_coords, test_set):
+
+		seg = Segmenter(self.image)
+		for num in test_set:
+			seg.run(num, self.qr_coords)
+			matched_segments = set()
+			for pair in polygon_coords:
+				matched_segments.add(seg.segments[pair[1]][pair[0]])
+				#TODO: find matches in the middle of grouping
+
+			for segment in matched_segments:
+				seg.color_segment(segment, [0, 1, 0])
+			seg.generate_superpixel_image()
+		plt.show()
 if __name__ == '__main__':
 	main()
