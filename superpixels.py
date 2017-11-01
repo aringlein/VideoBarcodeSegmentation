@@ -34,17 +34,19 @@ def main():
 	ap.add_argument("-d", "--data", required = True)
 	ap.add_argument("-p", "--polygon", required = False)
 	args = vars(ap.parse_args())
-	image = img_as_float(io.imread(args["image"]))
+	
 	file = open(args["data"], "r")
 	data = file.read().split()
 
 	qr_coords = (int(data[0]), int(data[1]))
+
+	image = img_as_float(io.imread(args["image"]))
 	#run_open_cv(image)
 	if "size" in args and args["size"]:
 		size = int(args["size"])
 	else:
 		size = 100
-	if "polygon" in args: 
+	if "polygon" in args and args["polygon"]:
 		#Run match segments to polygon
 		num_levels = int(data[2])
 		test_set = []
@@ -58,6 +60,7 @@ def main():
 		leveler = Leveler(image, qr_coords)
 		leveler.find_level_and_segments(to_match, test_set)
 	elif "image2" in args and args["image2"]:
+
 		image2 = img_as_float(io.imread(args["image2"]))
 		#Run matching between image and image2
 
@@ -198,5 +201,6 @@ class Leveler: #find superpixel level which matches given polygon well
 				seg.color_segment(segment, [0, 1, 0])
 			seg.generate_superpixel_image()
 		plt.show()
+		
 if __name__ == '__main__':
 	main()

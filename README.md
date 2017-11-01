@@ -13,3 +13,7 @@ To match segments between two images:
 
 where datafile.txt contains the pixels of the qr codes in each image, along with pixels in image 1 whose corresponding segments should be matched with segments in image2:
 `qrxpixel1 qrypixel1 qexpixel2 qrypixel2 point1x point1y point2x point2y ... `
+
+to run segmentation repeatedly at different levels of superpixels segmentation, use the -p option and use a data.txt file of the following form:
+`qrzpixel qrypixel, numsizes, size1, size2, ..., point1x, point2x, ...`
+That is, the coordinates of the superpixel, the total number of levels to try, each level, and finally the (optional) coordinates to note in each image
