@@ -123,7 +123,9 @@ class Segmenter: #run superpixel segmentation on an image
 	def run(self, num_segments, qr_coords):
 		self.num_segments = num_segments
 		segments = slic(self.image, n_segments = num_segments, sigma = 5)
-		self.segments = segments
+		self.segments = segments.astype(int)
+		#print(str(self.segments))
+		np.savetxt("segments.csv", self.segments, delimiter=",", fmt="%d")
 		#pprint(segments)
 		#print(str(image))
 
