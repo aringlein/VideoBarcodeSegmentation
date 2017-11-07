@@ -14,9 +14,18 @@ class FrameModel {
     // Map from id to PolygonModel.
     this._polygons = {};
     this._currentFrame = 0;
+    this._segmentation = null;
 
     this._frames = (new Array(FrameModel.KEYFRAMES)).fill().map(
         (x, i) => new FrameModel.Frame(this, i));
+  }
+
+  getSegmentation() {
+    return this._segmentation;
+  }
+  setSegmentation(data) {
+    this._segmentation = data;
+    console.log(this._segmentation);
   }
 
   get currentFrameIndex() {

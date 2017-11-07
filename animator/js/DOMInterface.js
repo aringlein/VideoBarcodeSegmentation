@@ -68,6 +68,18 @@ class DOMInterface {
     return $('#choosebackimg');
   }
 
+  static get SEGMENTATION_DATA_CHOOSER() {
+    return $('#segmentationdata');
+  }
+
+  static get SEGMENTATION_DATA_CHOOSER_LABEL() {
+    return $('#choosesegmentationdatalabel');
+  }
+
+  static get SEGMENTATION_DATA_CHOOSER_BUTTON() {
+    return $('#choosesegmentationdata');
+  }
+
   _activateButtons() {
     assertParameters(arguments);
 
@@ -139,6 +151,37 @@ class DOMInterface {
       }
       img.src = URL.createObjectURL(this.files[0]);
     });
+
+    DOMInterface.SEGMENTATION_DATA_CHOOSER.change(function() {
+      const chooseseglabelHTML =
+          DOMInterface.SEGMENTATION_DATA_CHOOSER_LABEL.html();
+      DOMInterface.SEGMENTATION_DATA_CHOOSER_LABEL.html(
+          DOMInterface.SEGMENTATION_DATA_CHOOSER_LABEL_LOADING);
+      DOMInterface.SEGMENTATION_DATA_CHOOSER_BUTTON.addClass('disabled');
+      DOMInterface.SEGMENTATION_DATA_CHOOSER.attr('disabled', 'disabled');
+
+      setTimeout(function() {
+        DOMInterface.SEGMENTATION_DATA_CHOOSER_LABEL.html(
+          chooseseglabelHTML);
+        DOMInterface.SEGMENTATION_DATA_CHOOSER_BUTTON.removeClass('disabled');
+        DOMInterface.SEGMENTATION_DATA_CHOOSER.removeAttr('disabled');
+      }, 500);
+
+      var reader = new FileReader();
+      reader.addEventListener("loadend", function() {
+        var data = reader.result;
+        var processed = []
+        var lines = data.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+          var linedata = lines[i].split(",").map(function(item) {
+              return parseInt(item, 10);
+          });
+          processed.push(linedata);
+        } 
+        Events.dispatch(DOMInterface.EVENT_TYPES.SELECT_CSV, processed);    
+      });
+      reader.readAsText(this.files[0], 'UTF8');    
+    });
   }
 
   _previewStopped() {
@@ -159,9 +202,11 @@ class DOMInterface {
 };
 
 DOMInterface.BACKGROUND_IMAGE_CHOOSER_LABEL_LOADING = `Loading...`;
+DOMInterface.SEGMENTATION_DATA_CHOOSER_LABEL_LOADING = `Loading...`;
 
 DOMInterface.EVENT_TYPES = {
   ADD_POLYGON: 'dominterface-add-polygon',
   READY: 'dominterface-ready',
-  SELECT_IMAGE: 'dominterface-select-image'
+  SELECT_IMAGE: 'dominterface-select-image',
+  SELECT_CSV: 'dominterface-select-csv',
 };

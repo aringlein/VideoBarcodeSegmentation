@@ -23,6 +23,7 @@ class FrameInterface {
     this._polygonInterfaces = {};
 
     this._backgroundImage = null;
+    this._segments = null;
 
     // Attach event listeners.
     Events.on(DOMInterface.EVENT_TYPES.READY, this._domInterfaceReady, this);
@@ -31,6 +32,7 @@ class FrameInterface {
     Events.on(FrameModel.EVENT_TYPES.REMOVE_POLYGON, this._removePolygon, this);
 
     Events.on(DOMInterface.EVENT_TYPES.SELECT_IMAGE, this._selectImage, this);
+    Events.on(DOMInterface.EVENT_TYPES.SELECT_CSV, this._selectCSV, this);
 
     Events.on(DOMInterfaceTableRow.EVENT_TYPES.CHANGE_FRAME,
         this._gotoFrame, this);
@@ -193,7 +195,7 @@ class FrameInterface {
         this._frameModel, polygonId,
         FrameInterface._scaleCoord,
         FrameInterface._inverseScaleCoord.bind(this,
-            FrameInterface._AREA_SIZE));
+            FrameInterface._AREA_SIZE), this._segments);
     this._polygonInterfaces[polygonId] = newPolygon;
     this._startEditingPolygon(polygonId);
   }
@@ -229,6 +231,13 @@ class FrameInterface {
     assertParameters(arguments, HTMLImageElement);
 
     this._backgroundImage = image;
+  }
+
+  _selectCSV(data) {
+    assertParameters(arguments, Array)
+    this._segments = data;
+    this._frameModel.setSegmentation(data);
+    console.log("setting segmentation");
   }
 
   _draw(canvas) {

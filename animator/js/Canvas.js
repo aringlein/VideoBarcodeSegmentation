@@ -106,6 +106,35 @@ class Canvas {
     }
   }
 
+  //Draw segment surrounding polygon
+  drawSegment(coords, color, stroke=false, segmentation) {
+    assertParameters(arguments, Array, String, [Boolean, undefined], Array);
+    //console.log(segmentation);
+    var imageData = this._context.getImageData(0, 0, this._canvas.width, this._canvas.height);
+    var data = imageData.data;
+    //very rudimentary version follows TODO: make faster with preprocessing
+    var segments = new Set();
+    //console.log(coords);
+    for (let coord1 of coords) {
+      for (let coord2 of coords) {
+        for (var i = 0; i <=1; i+= .25) {
+           segments.add(segmentation[Math.floor(coord1.y*i + coord2.y*(1-i))][Math.floor(coord1.x*i+coord2.x*(1-i))]);
+        }
+      }  
+    }
+    //console.log(segments);
+    for (var i = 0; i < canvas.height; i++) {
+      for (var j = 0; j < canvas.width; j++) {
+        var index = (i * canvas.width + j) * 4;
+        if (segments.has(segmentation[i][j])) {
+          //highlight segmented area
+          data[index] = 0;
+        }
+      }
+    }
+    this._context.putImageData(imageData, 0, 0);
+  }
+
   // Draw text centered at coord.
   drawText(coord, text, textAlign, font, color = 'black') {
     assertParameters(

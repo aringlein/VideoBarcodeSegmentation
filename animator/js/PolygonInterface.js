@@ -11,8 +11,8 @@
  * User interface to edit a polygon.
  */
 class PolygonInterface {
-  constructor(frameModel, polygonId, scaleCoordFn, inverseScaleCoordFn) {
-    assertParameters(arguments, FrameModel, Number, Function, Function);
+  constructor(frameModel, polygonId, scaleCoordFn, inverseScaleCoordFn, segments) {
+    assertParameters(arguments, FrameModel, Number, Function, Function, Array);
 
     this._frameModel = frameModel;
     this._id = polygonId;
@@ -24,6 +24,7 @@ class PolygonInterface {
     this._pointInterfaces = new Set();
 
     this._state = PolygonInterface._STATES.IDLE;
+    this._segments = segments;
 
     this._dragging = false;
     this._dragLast = null;
@@ -227,6 +228,11 @@ class PolygonInterface {
     canvas.drawCircle(
         this._scaleCoordCanvas(this._polygon.center, canvas), 2,
         PolygonInterface._CENTER_COLOR);
+
+    //draw surrounding segment as well
+    if (this._segments != null) {
+       canvas.drawSegment(this._scaledCoords, color, true, this._segments);
+    }
   }
 
   _drawInstructions(canvas) {
