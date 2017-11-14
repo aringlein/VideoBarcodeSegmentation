@@ -15,3 +15,8 @@ To match segments between two images:
 
 where datafile.txt contains the pixels of the qr codes in each image, along with pixels in image 1 whose corresponding segments should be matched with segments in image2:
 `qrxpixel1 qrypixel1 qexpixel2 qrypixel2 point1x point1y point2x point2y ... `
+
+
+## Notes
+
+I'm going to be keeping the internal Yale repo up to date instead of this one, but I'll eventually put all of my code here as well.
